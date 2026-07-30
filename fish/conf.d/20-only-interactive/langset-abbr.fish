@@ -1,1 +1,0 @@
-../../../profile.d/langset-alias.sh

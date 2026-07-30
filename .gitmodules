@@ -1,9 +1,0 @@
-[submodule "maximum-awesome"]
-	path = maximum-awesome
-	url = git@github.com:YoungCatChen/maximum-awesome.git
-[submodule "fish/nvm.fish"]
-	path = fish/nvm.fish
-	url = https://github.com/jorgebucaran/nvm.fish.git
-[submodule "fish/goto"]
-	path = fish/goto
-	url = https://github.com/matusf/goto

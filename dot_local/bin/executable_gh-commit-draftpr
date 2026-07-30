@@ -1,0 +1,26 @@
+#!/usr/bin/env fish
+
+git rev-parse --is-inside-work-tree >/dev/null 2>&1; or exit $status
+gh auth status >/dev/null; or exit $status
+git status
+
+set -l changes (git status --porcelain)
+test -n "$changes"; or begin
+  echo 'Workspace is clean.'
+  exit 0
+end
+
+read -P 'Commit message: ' message
+test -n "$message"; or exit 1
+
+set -l current_branch (git branch --show-current)
+if not string match --quiet 'xuexuan/*' "$current_branch"
+  set -l branch_name (string replace --all --regex '\\W+' '-' "$message" |
+    string shorten --char '' --max 30 | string trim --chars '-')
+  git switch -c "xuexuan/$branch_name"; or exit $status
+end
+
+git add --all
+git commit -m "$message"; or exit $status
+git push; or exit $status
+gh pr create --assignee @me --draft --fill

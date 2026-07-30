@@ -1,1 +1,0 @@
-../../nvm.fish/conf.d/nvm.fish

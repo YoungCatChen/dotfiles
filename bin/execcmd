@@ -1,1 +1,0 @@
-../profile.d/90-execcmd.sh

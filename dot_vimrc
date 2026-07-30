@@ -1,0 +1,51 @@
+set nocompatible
+syntax enable
+filetype plugin indent on
+
+set autoread
+set backspace=indent,eol,start
+set encoding=utf-8
+set expandtab
+set hidden
+set ignorecase
+set incsearch
+set list
+set listchars=tab:▸\ ,trail:▫
+set mouse=a
+set number
+set scrolloff=3
+set shiftwidth=2
+set showcmd
+set smartcase
+set softtabstop=2
+set tabstop=8
+set wildmenu
+set wildmode=longest,list,full
+
+if has('clipboard')
+  set clipboard=unnamed
+endif
+
+let mapleader = ','
+inoremap jj <Esc>
+noremap <C-h> <C-w>h
+noremap <C-j> <C-w>j
+noremap <C-k> <C-w>k
+noremap <C-l> <C-w>l
+vnoremap p "_dP
+cnoremap w!! execute 'silent write !sudo tee % >/dev/null' <bar> edit!
+
+function! StripTrailingWhitespace()
+  let saved_search = @/
+  let saved_view = winsaveview()
+  silent! %s/\s\+$//e
+  let @/ = saved_search
+  call winrestview(saved_view)
+endfunction
+nnoremap <leader><space> :call StripTrailingWhitespace()<CR>
+
+augroup dotfiles
+  autocmd!
+  autocmd VimResized * wincmd =
+  autocmd BufWritePre *.rb call StripTrailingWhitespace()
+augroup END

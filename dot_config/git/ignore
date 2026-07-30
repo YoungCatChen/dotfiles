@@ -1,0 +1,9 @@
+*~
+*.pyc
+Icon?
+node_modules/
+.DS_Store
+.config/go/telemetry/local
+.random.txt
+.bloop/
+.metal/

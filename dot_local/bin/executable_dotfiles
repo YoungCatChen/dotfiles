@@ -1,0 +1,41 @@
+#!/bin/sh
+set -eu
+
+action=${1:-apply}
+[ "$#" -eq 0 ] || shift
+[ "$#" -eq 0 ] || {
+  printf 'dotfiles does not accept additional arguments\n' >&2
+  exit 2
+}
+
+run_layer() {
+  layer=$1
+  source_dir=$2
+  printf '\n==> %s (%s)\n' "$layer" "$source_dir"
+  case "$action" in
+    update)
+      git -C "$source_dir" pull --ff-only
+      chezmoi --source "$source_dir" apply
+      ;;
+    apply|diff|status|managed)
+      chezmoi --source "$source_dir" "$action"
+      ;;
+    *)
+      printf 'usage: dotfiles [apply|diff|status|managed|update]\n' >&2
+      exit 2
+      ;;
+  esac
+}
+
+found=false
+for source_file in "$HOME/.config/dotfiles/sources.d"/*; do
+  [ -r "$source_file" ] || continue
+  IFS= read -r source_dir <"$source_file"
+  [ -d "$source_dir/.git" ] || continue
+  found=true
+  run_layer "$(basename "$source_file")" "$source_dir"
+done
+
+if [ "$found" = false ]; then
+  echo 'dotfiles: no registered source states found' >&2
+fi

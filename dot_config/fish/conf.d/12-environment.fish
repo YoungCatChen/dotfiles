@@ -1,0 +1,12 @@
+set --query LANG; or set --global --export LANG en_US.UTF-8
+set --query LANGUAGE; or set --global --export LANGUAGE en_US:en
+
+if command -q nvim
+  set --global --export EDITOR nvim
+else
+  set --global --export EDITOR vim
+end
+
+if command -q lesspipe.sh
+  set --global --export LESSOPEN '|lesspipe.sh %s'
+end

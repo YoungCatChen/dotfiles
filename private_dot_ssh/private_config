@@ -1,0 +1,12 @@
+Include ~/.ssh/config.d/*.conf
+
+Host github.com
+    ControlMaster no
+
+Host *
+    ControlMaster auto
+    ControlPersist 3600
+    ControlPath ~/.ssh/control-%C
+    TCPKeepAlive yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 9999

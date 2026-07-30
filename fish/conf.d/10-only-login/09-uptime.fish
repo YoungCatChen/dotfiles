@@ -1,1 +1,0 @@
-../../../profile.d/10-only-login/09-uptime.sh

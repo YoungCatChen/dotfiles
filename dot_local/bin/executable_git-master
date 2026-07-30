@@ -1,0 +1,29 @@
+#!/usr/bin/env fish
+
+set -l main_branch (git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null |
+  string replace refs/remotes/origin/ '')
+or exit $status
+set -l current_branch (git branch --show-current)
+
+git fetch --prune; or exit $status
+set -l changes (git status --porcelain)
+if test -n "$changes"
+  git add --all; and git commit -m 'Automatic temporary commit'
+  or exit $status
+end
+
+if test "$current_branch" != "$main_branch"
+  git switch "$main_branch"; or exit $status
+end
+
+set -l ahead (git rev-list --count "origin/$main_branch..$main_branch")
+if test "$ahead" -gt 0
+  set -l backup "mistake-$main_branch-"(date +%Y%m%d-%H%M%S)
+  git branch "$backup"; or exit $status
+end
+
+git reset --hard "origin/$main_branch"; or exit $status
+
+if test -n "$current_branch"; and test "$current_branch" != "$main_branch"
+  git switch "$current_branch"
+end

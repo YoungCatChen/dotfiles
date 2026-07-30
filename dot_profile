@@ -1,0 +1,40 @@
+# Common login-shell environment.
+
+path_prepend() {
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) PATH="$1${PATH:+:$PATH}" ;;
+  esac
+}
+
+for path_entry in \
+  /usr/local/sbin \
+  /usr/local/bin \
+  /opt/homebrew/sbin \
+  /opt/homebrew/bin \
+  "$HOME/go/bin" \
+  "$HOME/.local/bin" \
+  "$HOME/usr/sbin" \
+  "$HOME/usr/bin" \
+  "$HOME/bin"; do
+  path_prepend "$path_entry"
+done
+unset path_entry
+unset -f path_prepend
+export PATH
+
+: "${LANG:=en_US.UTF-8}"
+: "${LANGUAGE:=en_US:en}"
+export LANG LANGUAGE
+
+if command -v nvim >/dev/null 2>&1; then
+  EDITOR=nvim
+else
+  EDITOR=vim
+fi
+export EDITOR
+
+for profile_fragment in "$HOME/.config/profile.d"/*.sh; do
+  [ -r "$profile_fragment" ] && . "$profile_fragment"
+done
+unset profile_fragment

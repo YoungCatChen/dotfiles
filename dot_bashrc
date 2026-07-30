@@ -1,0 +1,27 @@
+case $- in
+  *i*) ;;
+  *) return ;;
+esac
+
+shopt -s cdspell checkwinsize cmdhist histappend interactive_comments
+HISTCONTROL=ignoredups:ignorespace
+HISTSIZE=100000
+HISTFILESIZE=200000
+HISTTIMEFORMAT='%Y-%m-%d %H:%M:%S  '
+
+for completion_file in \
+  /etc/bash_completion \
+  /usr/local/etc/bash_completion \
+  "$HOME/usr/etc/bash_completion"; do
+  [ -r "$completion_file" ] && . "$completion_file"
+done
+unset completion_file
+
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook bash)"
+fi
+
+for bash_fragment in "$HOME/.config/bash/conf.d"/*.bash; do
+  [ -r "$bash_fragment" ] && . "$bash_fragment"
+done
+unset bash_fragment

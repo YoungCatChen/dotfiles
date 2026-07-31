@@ -1,5 +1,6 @@
 set --query LANG; or set --global --export LANG en_US.UTF-8
 set --query LANGUAGE; or set --global --export LANGUAGE en_US:en
+set --query TIME_STYLE; or set --global --export TIME_STYLE iso
 
 if command -q nvim
   set --global --export EDITOR nvim

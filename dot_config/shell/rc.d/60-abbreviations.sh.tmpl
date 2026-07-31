@@ -1,0 +1,20 @@
+# vim: set ft=sh:
+is_interactive || return
+
+abbr() { alias "$1=$2"; }
+{{ include ".chezmoitemplates/common-abbreviations.sh" }}
+unset -f abbr
+
+if command ps -H >/dev/null 2>&1; then
+  ps() {
+    command ps -H "$@"
+  }
+fi
+
+pstreeme() {
+  command pstree "$USER" "$@"
+}
+
+pstreethis() {
+  command pstree -p "$$" "$@"
+}

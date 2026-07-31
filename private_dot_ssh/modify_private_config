@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+
+include='Include ~/.ssh/config.d/*.conf'
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+cat >"$tmp"
+
+awk -v include_line="$include" '
+  $0 != include_line { print }
+  END { print include_line }
+' "$tmp"

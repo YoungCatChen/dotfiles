@@ -1,0 +1,22 @@
+is_interactive || return
+
+{{ include ".chezmoitemplates/execcmd.sh" }}
+
+have() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+havebin() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+langset() {
+  if [ "$#" -lt 2 ]; then
+    printf 'usage: langset locale language\n' >&2
+    return 2
+  fi
+  LC_ALL=$1
+  LANG=$1
+  LANGUAGE=$2
+  export LC_ALL LANG LANGUAGE
+}

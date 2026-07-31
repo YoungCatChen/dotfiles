@@ -1,2 +1,2 @@
 #!/bin/sh
-exec gawk -v 'FS=[#|//]' '$1 !~ /^[ \t]*$/ {print}' "$@"
+exec awk -v 'FS=[#|//]' '$1 !~ /^[ \t]*$/ {print}' "$@"

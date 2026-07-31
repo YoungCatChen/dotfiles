@@ -1,18 +1,18 @@
 [push]
-    default = simple
-    autoSetupRemote = true
+  default = simple
+  autoSetupRemote = true
 [fetch]
-    prune = true
+  prune = true
 [pull]
-    ff = only
-    prune = true
+  ff = only
+  prune = true
 [core]
-    commentChar = ";"
-    excludesFile = ~/.config/git/ignore
+  commentChar = ";"
+  excludesFile = ~/.config/git/ignore
 [alias]
-    b = branch
-    co = checkout
-    st = status
-    sw = switch
-    master = !git-master
-    cleanup-merged = !git fetch && git branch -vv | cut -c2- | awk '/: gone]/ {print $1}' | xargs -r git branch -D
+  b = branch
+  co = checkout
+  st = status
+  sw = switch
+  master = !git-master
+  cleanup-merged = !git fetch && git branch -vv | cut -c2- | awk '/: gone]/ {print $1}' | xargs -r git branch -D

@@ -1,0 +1,15 @@
+{{- $roleChoices := list "workstation" "coder" "server" "router" -}}
+{{- $traitChoices := list "laptop" "ephemeral" "raspberry-pi" "minimal" -}}
+{{- $roles := promptMultichoiceOnce
+      . "machine.roles"
+      "Machine roles"
+      $roleChoices
+      (list "workstation") -}}
+{{- $traits := promptMultichoiceOnce
+      . "machine.traits"
+      "Machine traits"
+      $traitChoices
+      (list) -}}
+[data.machine]
+roles = {{ $roles | toToml }}
+traits = {{ $traits | toToml }}

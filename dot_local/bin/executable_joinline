@@ -1,22 +1,26 @@
-#!/bin/bash
+#!/bin/sh
 
-SPLIT="$1"
+if [ "$#" -eq 0 ]; then
+  printf 'usage: joinline lines-per-row [file ...]\n' >&2
+  exit 2
+fi
+
+lines_per_row=$1
 shift
+case $lines_per_row in
+  ''|*[!0-9]*|0)
+    printf 'joinline: lines-per-row must be a positive integer\n' >&2
+    exit 2
+    ;;
+esac
 
-awk -v "sp=$SPLIT" '
-BEGIN {
-	line = 0;
-	sp = sp + 0;
-}
-
-{
-	printf("%s\t", $0);
-	++line;
-
-	if (line == sp)
-	{
-		printf("\n");
-		line = 0;
-	}
-}
+exec awk -v "lines_per_row=$lines_per_row" '
+  {
+    printf "%s\t", $0
+    line++
+    if (line == lines_per_row) {
+      printf "\n"
+      line = 0
+    }
+  }
 ' "$@"

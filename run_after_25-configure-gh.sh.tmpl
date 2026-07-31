@@ -1,0 +1,13 @@
+{{ if lookPath "gh" -}}
+#!/bin/sh
+set -eu
+
+[ -z "${DOTFILES_SKIP_SIDE_EFFECTS:-}" ] || exit 0
+
+gh config set git_protocol ssh
+gh alias set --clobber co 'pr checkout'
+gh alias set --clobber mypr 'pr list --assignee @me --state open'
+gh alias set --clobber myprs mypr
+gh alias set --clobber --shell draftpr 'gh pr create --draft --assignee @me --title "$(git log --pretty=%s master..HEAD)"'
+gh alias set --clobber appr 'pr review --approve'
+{{ end -}}

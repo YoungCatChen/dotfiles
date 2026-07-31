@@ -1,37 +1,43 @@
-#!/bin/bash
+#!/bin/sh
 
-COL="$1"
-shift
-
-SKIP="$(($1 + 0))"
-if [ "$1" ]; then  # $1 non-empty
-	if [ -z "${1//[0-9]/}" ]; then # $1 all digits
-		shift
-	fi
+if [ "$#" -eq 0 ]; then
+  printf 'usage: joincolumn columns [lines-to-skip] [file ...]\n' >&2
+  exit 2
 fi
 
+columns=$1
+shift
+case $columns in
+  ''|*[!0-9]*|0)
+    printf 'joincolumn: columns must be a positive integer\n' >&2
+    exit 2
+    ;;
+esac
 
-awk -v "col=$COL" -v "skip=$SKIP" '
-BEGIN {
-	col = col + 0;
-	skip = skip + 0;
-	line = -skip;
-	arr[line] = "";
-}
+skip=0
+if [ "$#" -gt 0 ]; then
+  case $1 in
+    ''|*[!0-9]*) ;;
+    *) skip=$1; shift ;;
+  esac
+fi
 
-{
-	arr[line] = $0;
-	line++;
-}
-
-END {
-	jump = int((line + col - 1) / col);
-
-	for (i=0; i<jump; ++i) {
-		for (j=0; j<col; ++j) {
-			printf("%s\t", arr[i + j*jump]);
-		}
-		printf("\n");
-	}
-}
+exec awk -v "columns=$columns" -v "skip=$skip" '
+  BEGIN {
+    line = -skip
+    values[line] = ""
+  }
+  {
+    values[line] = $0
+    line++
+  }
+  END {
+    jump = int((line + columns - 1) / columns)
+    for (row = 0; row < jump; row++) {
+      for (column = 0; column < columns; column++) {
+        printf "%s\t", values[row + column * jump]
+      }
+      printf "\n"
+    }
+  }
 ' "$@"

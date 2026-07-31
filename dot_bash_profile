@@ -1,4 +1,5 @@
-[ -r "$HOME/.profile" ] && . "$HOME/.profile"
-case $- in
-  *i*) [ -r "$HOME/.bashrc" ] && . "$HOME/.bashrc" ;;
-esac
+# Login-shell entry point for Bash.
+
+DOTFILES_SHELL_LOGIN=1
+[ -r "$HOME/.config/shell/init.sh" ] && . "$HOME/.config/shell/init.sh"
+unset DOTFILES_SHELL_LOGIN

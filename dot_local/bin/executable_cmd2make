@@ -1,20 +1,22 @@
-#!/bin/bash
+#!/bin/sh
 
-echo "all: all_impl"
-echo
-
-id=1
-
-while read cmd; do
-  echo "cmd_$id:"
-  echo -en "\t"
-  echo "$cmd"
-  echo
-  id=$(( id + 1 ))
-done  < <( cat "$@" )
-
-echo -n "all_impl:"
-for ((i=1; i<id; ++i)); do
-  echo -n " cmd_$i"
-done
-echo
+exec awk '
+  BEGIN {
+    print "all: all_impl"
+    print ""
+    id = 1
+  }
+  {
+    print "cmd_" id ":"
+    print "\t" $0
+    print ""
+    id++
+  }
+  END {
+    printf "all_impl:"
+    for (target = 1; target < id; target++) {
+      printf " cmd_%d", target
+    }
+    print ""
+  }
+' "$@"

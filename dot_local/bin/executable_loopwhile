@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
-[ -z "$LOOPWHILE_SLEEP" ] && LOOPWHILE_SLEEP=2
+: "${LOOPWHILE_SLEEP:=2}"
 echo "Will run the following every $LOOPWHILE_SLEEP seconds:" >&2
 echo " $*" >&2
 
 while eval "$@"; do
-	sleep "$LOOPWHILE_SLEEP" || exit $?
+  sleep "$LOOPWHILE_SLEEP" || exit $?
 done

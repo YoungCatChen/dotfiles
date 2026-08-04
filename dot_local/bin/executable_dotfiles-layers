@@ -39,7 +39,8 @@ for source_file in "$HOME/.config/dotfiles/sources.d"/*; do
   IFS= read -r source_dir <"$source_file"
   [ -d "$source_dir/.git" ] || continue
   found=true
-  run_layer "$(basename "$source_file")" "$source_dir"
+  layer=$(basename "$source_file")
+  run_layer "${layer%.txt}" "$source_dir"
 done
 
 if [ "$found" = false ]; then

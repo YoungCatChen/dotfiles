@@ -34,7 +34,7 @@ run_layer() {
 }
 
 found=false
-for source_file in "$HOME/.config/dotfiles/sources.d"/*; do
+for source_file in "$HOME/.config/dotfiles-layers/sources.d"/*; do
   [ -r "$source_file" ] || continue
   IFS= read -r source_dir <"$source_file"
   [ -d "$source_dir/.git" ] || continue

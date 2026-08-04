@@ -46,7 +46,7 @@ state. To add one:
 
 1. Create the repository and put chezmoi source files at its root (for
    example, `dot_config/example/config`).
-2. Add `dot_config/dotfiles/sources.d/NN-name.txt.tmpl` containing
+2. Add `dot_config/dotfiles-layers/sources.d/NN-name.txt.tmpl` containing
    `{{ .chezmoi.sourceDir }}`. The numeric prefix defines apply order.
 3. Make its installer apply prerequisite layers first, then run
    `chezmoi --source "$repo_dir" apply` for itself.
@@ -55,8 +55,8 @@ state. To add one:
    shared.
 
 The repository may be cloned anywhere because chezmoi is always given an
-explicit source directory. The conventional public location is
-`~/.local/share/chezmoi`.
+explicit source directory. Installers that need to clone this prerequisite use
+`~/Code/dotfiles` by default.
 
 ## Design and style
 

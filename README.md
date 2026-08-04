@@ -14,12 +14,18 @@ organization-specific configuration live in separate source states.
 ./install.sh
 ```
 
-On first install, chezmoi prompts for machine roles and optional traits and
-stores them in its local config. A laptop is normally a `workstation` with the
-`laptop` trait. Other examples include a `coder` with the `ephemeral` trait or
-a `server` with the `raspberry-pi` trait. Inspect the result with
-`chezmoi data`; rerun `chezmoi init --prompt` from the public source to change
-it.
+On first install, validation stops with commands to copy the repository's
+example to chezmoi's local config. Edit the required location before applying
+again:
+
+```toml
+[data.machine]
+location = "local" # or "remote" for a hosted/SSH machine
+```
+
+This config is deliberately local and is not owned by any layer. Inspect the
+merged result with `chezmoi data`; change it later with
+`chezmoi edit-config`, then run `dotfiles-layers apply`.
 
 The installed `dotfiles-layers` command applies or updates every source state
 it can find:
@@ -58,9 +64,10 @@ explicit source directory. The conventional public location is
 - Manage ordinary files as ordinary chezmoi files; use links only when a
   program genuinely requires one.
 - Keep secrets out of Git and derive them from an authenticated local tool.
-- Use machine roles for purpose (`workstation`, `coder`, `server`, `router`),
-  traits for additional properties, and `.chezmoi.os`/`.chezmoi.arch` for
-  objective platform facts.
+- Keep user-selected environment facts small and owned by the layer that uses
+  them. Public configuration distinguishes `machine.location`; other layers
+  may add independent namespaces. Use `.chezmoi.os`/`.chezmoi.arch` for facts
+  chezmoi can detect itself.
 - Use two spaces for indentation in hand-written shell, Fish, Git config,
   YAML, and similar configuration. Generated application files may retain
   their native formatting.

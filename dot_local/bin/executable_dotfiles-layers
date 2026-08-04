@@ -15,23 +15,13 @@ run_layer() {
   case "$action" in
     update)
       git -C "$source_dir" pull --ff-only
-      if [ "$config_initialized" = false ] && [ -f "$source_dir/.chezmoi.toml.tmpl" ]; then
-        chezmoi --source "$source_dir" init --apply
-        config_initialized=true
-      else
-        chezmoi --source "$source_dir" apply
-      fi
+      chezmoi --source "$source_dir" apply
       ;;
     status)
       chezmoi --source "$source_dir" status --exclude scripts
       ;;
     apply)
-      if [ "$config_initialized" = false ] && [ -f "$source_dir/.chezmoi.toml.tmpl" ]; then
-        chezmoi --source "$source_dir" init --apply
-        config_initialized=true
-      else
-        chezmoi --source "$source_dir" apply
-      fi
+      chezmoi --source "$source_dir" apply
       ;;
     diff|managed)
       chezmoi --source "$source_dir" "$action"
@@ -44,7 +34,6 @@ run_layer() {
 }
 
 found=false
-config_initialized=false
 for source_file in "$HOME/.config/dotfiles/sources.d"/*; do
   [ -r "$source_file" ] || continue
   IFS= read -r source_dir <"$source_file"

@@ -9,15 +9,4 @@ if ! command -v chezmoi >/dev/null 2>&1; then
   PATH="$HOME/.local/bin:$PATH"
 fi
 
-config_file=$(chezmoi execute-template '{{ .chezmoi.configFile }}')
-if [ -f "$config_file" ]; then
-  chezmoi --source "$repo_dir" init --apply
-elif [ -n "${DOTFILES_MACHINE_ROLES:-}" ] && [ -n "${DOTFILES_MACHINE_TRAITS:-}" ]; then
-  chezmoi --source "$repo_dir" init --apply --promptDefaults \
-    --promptMultichoice "Machine roles=$DOTFILES_MACHINE_ROLES,Machine traits=$DOTFILES_MACHINE_TRAITS"
-elif [ -n "${DOTFILES_MACHINE_ROLES:-}" ]; then
-  chezmoi --source "$repo_dir" init --apply --promptDefaults \
-    --promptMultichoice "Machine roles=$DOTFILES_MACHINE_ROLES"
-else
-  chezmoi --source "$repo_dir" init --apply
-fi
+chezmoi --source "$repo_dir" apply

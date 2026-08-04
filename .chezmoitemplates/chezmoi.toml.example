@@ -1,0 +1,4 @@
+[data.machine]
+# Required: "local" for a physical machine you control, or "remote" for a
+# hosted/SSH machine.
+location = ""

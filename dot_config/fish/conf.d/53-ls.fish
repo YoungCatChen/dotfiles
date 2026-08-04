@@ -10,24 +10,29 @@ end
 status is-interactive; or return
 
 function setup_ls_alias
+  set --local ls_command ls
   set --local options
-  if command ls --group-directories-first / &>/dev/null
+  if command -q gls
+    set ls_command gls
+  end
+
+  if command $ls_command --group-directories-first / &>/dev/null
     set --append options --group-directories-first
   end
-  if command ls --color=auto / &>/dev/null
+  if command $ls_command --color=auto / &>/dev/null
     set --append options --color=auto
   else if contains -- (uname -s 2>/dev/null) Darwin FreeBSD
-    if command ls -G / &>/dev/null
+    if command $ls_command -G / &>/dev/null
       set --append options -G
       set --global --export CLICOLOR 1
     end
   end
-  if command ls -F / &>/dev/null
+  if command $ls_command -F / &>/dev/null
     set --append options -F
   end
 
   set --local definition \
-    (string join -- ' ' command ls (string escape -- $options))
+    (string join -- ' ' command $ls_command (string escape -- $options))
   alias ls $definition
 end
 

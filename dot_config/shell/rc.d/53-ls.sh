@@ -15,19 +15,24 @@ export LS_COLORS
 is_interactive || return
 
 setup_ls_alias() {
-  local options os
+  local ls_command options os
+  ls_command=ls
   options=
 
-  if command ls --group-directories-first / >/dev/null 2>&1; then
+  if command -v gls >/dev/null 2>&1; then
+    ls_command=gls
+  fi
+
+  if command "$ls_command" --group-directories-first / >/dev/null 2>&1; then
     options="$options --group-directories-first"
   fi
-  if command ls --color=auto / >/dev/null 2>&1; then
+  if command "$ls_command" --color=auto / >/dev/null 2>&1; then
     options="$options --color=auto"
   else
     os=$(uname -s 2>/dev/null)
     case $os in
       Darwin|FreeBSD)
-        if command ls -G / >/dev/null 2>&1; then
+        if command "$ls_command" -G / >/dev/null 2>&1; then
           options="$options -G"
           CLICOLOR=1
           export CLICOLOR
@@ -35,11 +40,11 @@ setup_ls_alias() {
         ;;
     esac
   fi
-  if command ls -F / >/dev/null 2>&1; then
+  if command "$ls_command" -F / >/dev/null 2>&1; then
     options="$options -F"
   fi
 
-  alias "ls=ls$options"
+  alias "ls=$ls_command$options"
 }
 
 setup_ls_alias

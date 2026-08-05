@@ -1,12 +1,30 @@
 #!/bin/sh
 set -eu
 
-include='Include ~/.ssh/config.d/*.conf'
 tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
 cat >"$tmp"
 
-awk -v include_line="$include" '
+begin='# --- START DOTFILES SSH INCLUDE ---'
+include='Include ~/.ssh/config.d/*.conf'
+end='# --- END DOTFILES SSH INCLUDE ---'
+
+awk \
+  -v begin_line="$begin" \
+  -v include_line="$include" \
+  -v end_line="$end" '
+  $0 == begin_line { in_block = 1; next }
+  $0 == end_line { in_block = 0; next }
+  in_block { next }
+
+  # Migrate the old unmarked Include line.
+  # After migration, this can be simplified to: !in_block { print }
   $0 != include_line { print }
-  END { print include_line }
+
+  END {
+    print begin_line
+    print "Match all"
+    print include_line
+    print end_line
+  }
 ' "$tmp"

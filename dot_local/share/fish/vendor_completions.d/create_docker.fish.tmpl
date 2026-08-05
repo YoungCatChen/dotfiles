@@ -1,0 +1,4 @@
+{{- /* vim: set ft=go-template: */ -}}
+{{- if $docker := lookPath "docker" -}}
+{{ output $docker "completion" "fish" -}}
+{{- end -}}

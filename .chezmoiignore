@@ -2,13 +2,31 @@
 {{- if hasKey . "machine" -}}
   {{- $candidate := get . "machine" -}}
   {{- if not (kindIs "map" $candidate) -}}
-    {{- fail "dotfiles configuration is invalid: data.machine must be a TOML table" -}}
+    {{- fail (print
+      "dotfiles configuration is invalid: "
+      "data.machine must be a TOML table"
+    ) -}}
   {{- end -}}
   {{- $machine = $candidate -}}
 {{- end -}}
 {{- $location := get $machine "location" | default "" -}}
 {{- if not (has $location (list "local" "remote")) -}}
-  {{- fail (printf "\n\nDotfiles configuration is missing or invalid: data.machine.location must be either \"local\" or \"remote\".\n\nCreate the local chezmoi config, edit location, then apply again:\n\n  mkdir -p \"$(dirname '%s')\"\n  cp '%s/.chezmoitemplates/chezmoi.toml.example' '%s'\n  ${EDITOR:-vi} '%s'\n\nLater changes can be made with: chezmoi edit-config\n\n" .chezmoi.configFile .chezmoi.sourceDir .chezmoi.configFile .chezmoi.configFile) -}}
+  {{- $message := print
+    "\n\nDotfiles configuration is missing or invalid: "
+    "data.machine.location must be either \"local\" or \"remote\".\n\n"
+    "Create the local chezmoi config, edit location, then apply again:\n\n"
+    "  mkdir -p \"$(dirname '%s')\"\n"
+    "  cp '%s/.chezmoitemplates/chezmoi.toml.example' '%s'\n"
+    "  ${EDITOR:-vi} '%s'\n\n"
+    "Later changes can be made with: chezmoi edit-config\n\n"
+  -}}
+  {{- fail (printf
+    $message
+    .chezmoi.configFile
+    .chezmoi.sourceDir
+    .chezmoi.configFile
+    .chezmoi.configFile
+  ) -}}
 {{- end }}
 README.md
 LICENSE

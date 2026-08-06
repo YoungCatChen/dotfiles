@@ -1,34 +1,61 @@
 #!/bin/sh
 set -eu
 
-action=${1:-apply}
+usage() {
+  cat <<'EOF'
+usage: dotfiles-layers [status|managed|diff|apply|update]
+
+Run an action across every registered chezmoi source layer.
+
+Actions:
+  status   Show managed files that differ (excluding scripts).
+  managed  List the files and directories managed by chezmoi.
+  diff     Preview the changes apply would make, without changing files.
+  apply    Update your home directory to match the dotfiles.
+  update   Fast-forward each layer's Git repository, then apply it.
+EOF
+}
+
+action=${1:-help}
 [ "$#" -eq 0 ] || shift
 [ "$#" -eq 0 ] || {
   printf 'dotfiles-layers does not accept additional arguments\n' >&2
   exit 2
 }
 
+case "$action" in
+  help|-h|--help)
+    usage
+    exit 0
+    ;;
+  status|managed|diff|apply|update)
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
+
 run_layer() {
   layer=$1
   source_dir=$2
   printf '\n==> %s (%s)\n' "$layer" "$source_dir"
   case "$action" in
-    update)
-      git -C "$source_dir" pull --ff-only
-      chezmoi --source "$source_dir" apply
-      ;;
     status)
       chezmoi --source "$source_dir" status --exclude scripts
+      ;;
+    managed)
+      chezmoi --source "$source_dir" managed
+      ;;
+    diff)
+      chezmoi --source "$source_dir" diff
       ;;
     apply)
       chezmoi --source "$source_dir" apply
       ;;
-    diff|managed)
-      chezmoi --source "$source_dir" "$action"
-      ;;
-    *)
-      printf 'usage: dotfiles-layers [apply|diff|status|managed|update]\n' >&2
-      exit 2
+    update)
+      git -C "$source_dir" pull --ff-only
+      chezmoi --source "$source_dir" apply
       ;;
   esac
 }

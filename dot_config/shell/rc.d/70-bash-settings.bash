@@ -22,6 +22,3 @@ unset -f load_bash_completions
 if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook bash)"
 fi
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"

@@ -1,4 +1,3 @@
-fish_add_path --global --move \
   ~/bin \
   ~/usr/bin \
   ~/usr/sbin \

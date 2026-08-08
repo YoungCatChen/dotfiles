@@ -1,28 +1,26 @@
+# vim: set ft=sh:
 is_login || return
 
-setup_login_environment() {
-  local dir
-  for dir in \
-    /sbin \
-    /usr/sbin \
-    /bin \
-    /usr/bin \
-    /usr/local/sbin \
-    /usr/local/bin \
-    /opt/homebrew/sbin \
-    /opt/homebrew/bin \
-    "$HOME/go/bin" \
-    "$HOME/.local/bin" \
-    "$HOME/usr/sbin" \
-    "$HOME/usr/bin" \
-    "$HOME/bin"; do
-    case ":$PATH:" in
+prepend_path_dirs() {
+  local dir prefix
+  prefix=
+  for dir in "$@"; do
+    case ":$PATH:$prefix:" in
       *":$dir:"*) ;;
-      *) PATH="$dir${PATH:+:$PATH}" ;;
+      *) prefix="${prefix:+$prefix:}$dir" ;;
     esac
   done
+  if [ -n "$prefix" ]; then
+    PATH="$prefix${PATH:+:$PATH}"
+  fi
   export PATH
+}
 
+prepend_path_dirs \
+{{ include ".chezmoitemplates/paths.txt" }}
+unset -f prepend_path_dirs
+
+setup_login_environment() {
   : "${LANG:=en_US.UTF-8}"
   : "${LANGUAGE:=en_US:en}"
   : "${TIME_STYLE:=iso}"

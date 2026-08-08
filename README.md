@@ -4,9 +4,9 @@ Public, machine-independent dotfiles managed by
 [chezmoi](https://www.chezmoi.io/). Files are copied into place by chezmoi;
 the repository is not part of the shell's runtime configuration.
 
-This layer contains the common Fish/Bash setup, Git and SSH defaults, small
-command-line tools, and minimal Vim/tmux configuration. Private and
-organization-specific configuration live in separate source states.
+This layer contains the common Fish/Bash setup, a minimal zsh `PATH` shim, Git
+and SSH defaults, small command-line tools, and minimal Vim/tmux configuration.
+Private and organization-specific configuration live in separate source states.
 
 ## Install from a clone
 
@@ -91,6 +91,11 @@ explicit source directory. Installers that need to clone this prerequisite use
   shared with Fish come from one chezmoi template.
 - `~/.config/fish` remains separate and uses Fish's native `status is-login`
   and `status is-interactive` guards.
+- `~/.zshenv` exists only to give zsh the same `PATH` as Fish and Bash, because
+  non-interactive zsh is what editors and AI coding agents spawn. It is not an
+  interactive zsh configuration; there is deliberately no `.zshrc`.
+- The `PATH` directory list is written once in `.chezmoitemplates/paths.txt`, in
+  descending priority order, and included by the POSIX, Fish, and zsh trees.
 
 ## Shell startup behavior
 
@@ -113,6 +118,14 @@ explicit source directory. Installers that need to clone this prerequisite use
 - Interactive, non-login POSIX shells may use the `ENV` variable for an rc
   file. This configuration does not set `ENV` because such shells are not a
   primary interactive entry point.
+- `~/.zshenv` is read by every zsh, so even a bare `zsh -c` gets the full
+  `PATH`. Login zsh additionally runs `/etc/zprofile`, which invokes macOS
+  `path_helper` *after* `~/.zshenv` and re-orders `PATH` from `/etc/paths`.
+  Login zsh is therefore not a supported interactive entry point; use Fish.
+- Non-interactive, non-login Bash and Dash have no equivalent of `.zshenv`:
+  `ENV` applies to interactive shells only, and `BASH_ENV` requires the variable
+  to be set by the caller. This asymmetry with zsh is inherent, not an
+  oversight.
 
 Interactive shells detect supported grep options and put them directly in a
 shell alias. `GREP_OPTIONS` is intentionally not set because grep has

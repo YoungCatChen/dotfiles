@@ -1,3 +1,5 @@
+{{- /* vim: set ft=fish: */ -}}
+
 set --query LANG; or set --global --export LANG en_US.UTF-8
 set --query LANGUAGE; or set --global --export LANGUAGE en_US:en
 set --query TIME_STYLE; or set --global --export TIME_STYLE iso
@@ -11,3 +13,7 @@ end
 if command -q lesspipe.sh
   set --global --export LESSOPEN '|lesspipe.sh %s'
 end
+
+{{ if eq .chezmoi.os "linux" }}
+set --query XDG_RUNTIME_DIR; or set --global --export XDG_RUNTIME_DIR "/run/user/$(id -u)"
+{{ end }}

@@ -33,7 +33,10 @@ function setup_ls_alias
 
   set --local definition \
     (string join -- ' ' command $ls_command (string escape -- $options))
-  alias ls $definition
+
+  # No `--wraps`, to avoid infinite recursion on command completion.
+  # Can't use `alias` because it always includes `--wraps`.
+  echo "function ls; $definition \$argv; end" | source
 end
 
 setup_ls_alias

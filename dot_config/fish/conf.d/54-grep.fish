@@ -11,7 +11,10 @@ function setup_grep_alias
 
   set --local definition \
     (string join -- ' ' command grep (string escape -- $options))
-  alias grep $definition
+
+  # No `--wraps`, to avoid infinite recursion on command completion.
+  # Can't use `alias` because it always includes `--wraps`.
+  echo "function grep; $definition \$argv; end" | source
 end
 
 setup_grep_alias

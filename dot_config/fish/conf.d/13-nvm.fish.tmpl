@@ -2,3 +2,6 @@
 
 {{ include ".chezmoitemplates/nvm_dir.sh" }}
 set -gx nvm_data $NVM_DIR/versions/node
+
+# nvm will later be loaded from `~/.config/fish/conf.d/nvm.fish`, which is
+# installed as `jorgebucaran/nvm.fish` by `dot_config/fish/fish_plugins`.

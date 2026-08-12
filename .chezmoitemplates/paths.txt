@@ -2,6 +2,7 @@
   ~/usr/bin \
   ~/usr/sbin \
   ~/.local/bin \
+  ~/.local/go/bin \
   ~/go/bin \
   /opt/homebrew/bin \
   /opt/homebrew/sbin \

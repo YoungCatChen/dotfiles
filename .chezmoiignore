@@ -1,3 +1,4 @@
+{{- /* vim: set ft=go-template: */ -}}
 {{- $machine := dict -}}
 {{- if hasKey . "machine" -}}
   {{- $candidate := get . "machine" -}}
@@ -27,8 +28,11 @@
     .chezmoi.configFile
     .chezmoi.configFile
   ) -}}
-{{- end }}
+{{- end -}}
+
 README.md
 LICENSE
 install.sh
 misc-tools
+.dotfiles-layer-archive
+**/*_test

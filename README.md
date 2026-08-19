@@ -41,8 +41,8 @@ installed by Fisher. No Git submodules are required.
 
 ## Add another layer
 
-Each layer is an independent Git repository whose root is a chezmoi source
-state. To add one:
+Each layer is an independent repository whose root is a chezmoi source state.
+To add one:
 
 1. Create the repository and put chezmoi source files at its root (for
    example, `dot_config/example/config`).
@@ -50,13 +50,18 @@ state. To add one:
    `{{ .chezmoi.sourceDir }}`. The numeric prefix defines apply order.
 3. Make its installer apply prerequisite layers first, then run
    `chezmoi --source "$repo_dir" apply` for itself.
-4. Avoid owning the same target file in multiple layers. Prefer fragments,
+4. To support updates without Git, add `.dotfiles-layer-archive` containing an
+   HTTPS URL for a `tar.gz` archive with one top-level directory, and list the
+   metadata file in `.chezmoiignore`. Install the source without its `.git`
+   directory to select archive updates.
+5. Avoid owning the same target file in multiple layers. Prefer fragments,
    application commands, or a `modify_` script when configuration must be
    shared.
 
 The repository may be cloned anywhere because chezmoi is always given an
-explicit source directory. Installers that need to clone this prerequisite use
-`~/Code/dotfiles` by default.
+explicit source directory. A Git checkout is never replaced with an archive;
+Git must be installed to update it. Installers that need to clone this
+prerequisite use `~/Code/dotfiles` by default.
 
 ## Design and style
 

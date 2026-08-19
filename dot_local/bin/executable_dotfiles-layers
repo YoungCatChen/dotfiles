@@ -12,7 +12,7 @@ Actions:
   managed  List the files and directories managed by chezmoi.
   diff     Preview the changes apply would make, without changing files.
   apply    Update your home directory to match the dotfiles.
-  update   Fast-forward each layer's Git repository, then apply it.
+  update   Update each layer from Git or an archive, then apply it.
 EOF
 }
 
@@ -54,17 +54,110 @@ run_layer() {
       chezmoi --source "$source_dir" apply
       ;;
     update)
-      git -C "$source_dir" pull --ff-only
+      update_layer
       chezmoi --source "$source_dir" apply
       ;;
   esac
+}
+
+update_layer() {
+  if [ -d "$source_dir/.git" ] || [ -f "$source_dir/.git" ]; then
+    if ! command -v git >/dev/null 2>&1; then
+      printf '%s\n' \
+        'dotfiles-layers: Git checkout cannot be updated without git' >&2
+      return 1
+    fi
+    git -C "$source_dir" pull --ff-only
+  elif [ -r "$source_dir/.dotfiles-layer-archive" ]; then
+    echo 'dotfiles-layers: updating from archive'
+    update_from_archive
+  else
+    printf 'dotfiles-layers: no update method found for %s\n' \
+      "$source_dir" >&2
+    return 1
+  fi
+}
+
+update_from_archive() (
+  archive_url_file="$source_dir/.dotfiles-layer-archive"
+  if [ -L "$source_dir" ]; then
+    printf 'dotfiles-layers: refusing to replace symlink %s\n' \
+      "$source_dir" >&2
+    return 1
+  fi
+  IFS= read -r archive_url <"$archive_url_file"
+  case "$archive_url" in
+    https://*) ;;
+    *)
+      printf 'dotfiles-layers: invalid archive URL in %s\n' \
+        "$archive_url_file" >&2
+      return 1
+      ;;
+  esac
+
+  source_parent=$(dirname "$source_dir")
+  source_name=$(basename "$source_dir")
+  update_dir=$(mktemp -d "$source_parent/.${source_name}.update.XXXXXX")
+  old_dir=$update_dir/old
+  archive_root=
+
+  cleanup_archive_update() {
+    if [ ! -e "$source_dir" ] && [ ! -L "$source_dir" ] && \
+      [ -d "$old_dir" ]; then
+      mv "$old_dir" "$source_dir"
+    fi
+    rm -rf "$update_dir"
+  }
+  trap cleanup_archive_update EXIT
+  trap 'exit 1' HUP INT TERM
+
+  mkdir "$update_dir/unpack"
+  download_archive "$archive_url" "$update_dir/source.tar.gz"
+  tar -tzf "$update_dir/source.tar.gz" >/dev/null
+  tar -xzf "$update_dir/source.tar.gz" -C "$update_dir/unpack"
+
+  set -- "$update_dir/unpack"/*
+  if [ "$#" -ne 1 ] || [ ! -d "$1" ] || [ -L "$1" ]; then
+    echo 'dotfiles-layers: archive must contain one source directory' >&2
+    return 1
+  fi
+  archive_root=$1
+  if [ ! -r "$archive_root/.dotfiles-layer-archive" ]; then
+    echo 'dotfiles-layers: archive is missing update metadata' >&2
+    return 1
+  fi
+  IFS= read -r next_archive_url \
+    <"$archive_root/.dotfiles-layer-archive"
+  case "$next_archive_url" in
+    https://*) ;;
+    *)
+      echo 'dotfiles-layers: archive contains an invalid update URL' >&2
+      return 1
+      ;;
+  esac
+
+  mv "$source_dir" "$old_dir"
+  mv "$archive_root" "$source_dir"
+)
+
+download_archive() {
+  archive_url="$1"
+  archive_file="$2"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL -o "$archive_file" "$archive_url"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q -O "$archive_file" "$archive_url"
+  else
+    echo 'dotfiles-layers: update requires curl or wget' >&2
+    return 1
+  fi
 }
 
 found=false
 for source_file in "$HOME/.config/dotfiles-layers/sources.d"/*; do
   [ -r "$source_file" ] || continue
   IFS= read -r source_dir <"$source_file"
-  [ -d "$source_dir/.git" ] || continue
+  [ -d "$source_dir" ] || continue
   found=true
   layer=$(basename "$source_file")
   run_layer "${layer%.txt}" "$source_dir"

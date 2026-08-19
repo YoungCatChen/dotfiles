@@ -1,0 +1,147 @@
+#!/bin/sh
+set -eu
+
+bin_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+command_file="$bin_dir/executable_dotfiles-layers"
+test_root="$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-layers-test.XXXXXX")"
+trap 'rm -rf "$test_root"' EXIT HUP INT TERM
+
+test_bin=$test_root/bin
+test_home=$test_root/home
+source_dir=$test_root/layer
+log_file=$test_root/commands.log
+mkdir -p "$test_bin" "$test_home"
+
+for tool_name in basename cp dirname mkdir mktemp mv rm sh tar; do
+  ln -s "$(command -v "$tool_name")" "$test_bin/$tool_name"
+done
+
+cat >"$test_root/curl" <<'EOF'
+#!/bin/sh
+set -eu
+output=
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -o)
+      shift
+      output=$1
+      ;;
+  esac
+  shift
+done
+cp "$TEST_ARCHIVE" "$output"
+EOF
+
+cat >"$test_root/wget" <<'EOF'
+#!/bin/sh
+set -eu
+output=
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -O)
+      shift
+      output=$1
+      ;;
+  esac
+  shift
+done
+cp "$TEST_ARCHIVE" "$output"
+EOF
+
+cat >"$test_root/chezmoi" <<'EOF'
+#!/bin/sh
+printf 'chezmoi %s\n' "$*" >>"$TEST_LOG"
+EOF
+
+cat >"$test_root/git" <<'EOF'
+#!/bin/sh
+printf 'git %s\n' "$*" >>"$TEST_LOG"
+EOF
+
+chmod +x "$test_root/curl" "$test_root/wget" \
+  "$test_root/chezmoi" "$test_root/git"
+ln -s "$test_root/chezmoi" "$test_bin/chezmoi"
+
+reset_fixture() {
+  rm -rf "$test_home" "$source_dir"
+  mkdir -p "$test_home/.config/dotfiles-layers/sources.d" "$source_dir"
+  printf '%s\n' "$source_dir" \
+    >"$test_home/.config/dotfiles-layers/sources.d/10-test.txt"
+  : >"$log_file"
+}
+
+make_archive() {
+  archive_name=$1
+  archive_marker=$2
+  archive_parent=$test_root/$archive_name
+  rm -rf "$archive_parent"
+  mkdir -p "$archive_parent/repository"
+  printf '%s\n' 'https://example.invalid/source.tar.gz' \
+    >"$archive_parent/repository/.dotfiles-layer-archive"
+  printf '%s\n' "$archive_marker" \
+    >"$archive_parent/repository/marker"
+  tar -czf "$test_root/$archive_name.tar.gz" \
+    -C "$archive_parent" repository
+}
+
+run_update() {
+  HOME=$test_home \
+    PATH=$test_bin \
+    TEST_ARCHIVE=$1 \
+    TEST_LOG=$log_file \
+    sh "$command_file" update
+}
+
+make_archive good new
+reset_fixture
+printf '%s\n' 'https://example.invalid/source.tar.gz' \
+  >"$source_dir/.dotfiles-layer-archive"
+printf '%s\n' old >"$source_dir/marker"
+ln -s "$test_root/curl" "$test_bin/curl"
+run_update "$test_root/good.tar.gz"
+test "$(cat "$source_dir/marker")" = new
+test "$(cat "$log_file")" = \
+  "chezmoi --source $source_dir apply"
+
+reset_fixture
+printf '%s\n' 'https://example.invalid/source.tar.gz' \
+  >"$source_dir/.dotfiles-layer-archive"
+printf '%s\n' old >"$source_dir/marker"
+bad_parent=$test_root/bad
+mkdir -p "$bad_parent/one" "$bad_parent/two"
+tar -czf "$test_root/bad.tar.gz" -C "$bad_parent" one two
+if run_update "$test_root/bad.tar.gz"; then
+  echo 'bad archive unexpectedly succeeded' >&2
+  exit 1
+fi
+test "$(cat "$source_dir/marker")" = old
+test ! -s "$log_file"
+
+reset_fixture
+printf '%s\n' 'https://example.invalid/source.tar.gz' \
+  >"$source_dir/.dotfiles-layer-archive"
+printf '%s\n' old >"$source_dir/marker"
+rm "$test_bin/curl"
+ln -s "$test_root/wget" "$test_bin/wget"
+run_update "$test_root/good.tar.gz"
+test "$(cat "$source_dir/marker")" = new
+
+reset_fixture
+mkdir "$source_dir/.git"
+printf '%s\n' 'https://example.invalid/source.tar.gz' \
+  >"$source_dir/.dotfiles-layer-archive"
+printf '%s\n' old >"$source_dir/marker"
+if run_update "$test_root/good.tar.gz"; then
+  echo 'Git checkout unexpectedly updated without git' >&2
+  exit 1
+fi
+test "$(cat "$source_dir/marker")" = old
+test ! -s "$log_file"
+
+ln -s "$test_root/git" "$test_bin/git"
+run_update "$test_root/good.tar.gz"
+expected_log=$(printf 'git -C %s pull --ff-only\n' "$source_dir")
+expected_log=$expected_log$(printf '\nchezmoi --source %s apply' "$source_dir")
+test "$(cat "$log_file")" = "$expected_log"
+
+echo 'dotfiles-layers tests passed'

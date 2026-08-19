@@ -1,3 +1,6 @@
+{{- /* vim: set ft=fish: */ -}}
+{{- if eq .chezmoi.os "darwin" -}}
+
 # Fixes the global screen completions.
 
 source $__fish_data_dir/completions/screen.fish
@@ -19,3 +22,5 @@ function __fish_complete_screen_general_list_mac -d "Get the socket list on mac"
     end
     popd >/dev/null
 end
+
+{{- end -}}

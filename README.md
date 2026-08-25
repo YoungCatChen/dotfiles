@@ -36,6 +36,28 @@ dotfiles-layers apply
 dotfiles-layers update
 ```
 
+On local Macs with `uv` installed, `dotfiles-macos-settings` runs as a Python
+3.14+ uv script. It loads ordered `*.toml` fragments from
+`~/.config/dotfiles-macos-settings`, expands reusable domain groups, merges
+later preference declarations over earlier ones, validates the complete plan,
+and shows a read-only diff by default:
+
+```sh
+dotfiles-macos-settings
+dotfiles-macos-settings apply
+```
+
+The command never runs as part of `chezmoi apply`. A private layer should own
+the setting declarations. TOML values retain their native defaults types, so
+`2` is an integer while `2.0` is a float. Dock layout management uses
+`dockutil` when it is installed and otherwise prints the desired order for
+manual setup. Dock applications may be an `.app` basename, searched under
+`/Applications`, `/System/Applications`, and
+`/System/Applications/Utilities`, or an absolute path for nested apps. Apps
+not declared in the configuration remain visible after configured apps, in
+their existing relative order; they continue to appear as drift until removed
+manually or added to the configuration.
+
 Third-party Fish plugins are declared in `~/.config/fish/fish_plugins` and
 installed by Fisher. No Git submodules are required.
 
@@ -78,15 +100,16 @@ prerequisite use `~/Code/dotfiles` by default.
   their native formatting.
 - `.profile` and the small `/bin/sh` utilities avoid Bash syntax and are tested
   with dash and BusyBox ash. Shared rc fragments also use the widely supported
-  `local` extension to keep setup variables private. Fish configuration
-  requires Fish; `git-master` requires Fish; and the legacy `mailafter` utility
-  requires Bash.
+  `local` extension to keep setup variables private. Fish configuration and
+  `git-master` require Fish; `dotfiles-macos-settings` requires uv and Python
+  3.14 or newer; the legacy `mailafter` utility requires Bash.
 
 ## Command organization
 
 - `~/.local/bin` contains standalone commands that must work from scripts and
   without interactive shell initialization. Small wrappers such as `dfh` are
-  allowed here when their command-like behavior is useful across shells.
+  allowed here when their command-like behavior is useful across shells. The
+  `dotfiles-macos-settings` uv wrapper imports its adjacent typed Python module.
 - `~/.config/shell/init.sh` is the single dispatcher for Bash, Dash, and
   BusyBox ash. Ordered fragments live in `~/.config/shell/rc.d`; `.sh` files
   are shared by all three shells and `.bash` files are loaded only by Bash.

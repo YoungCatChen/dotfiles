@@ -1,2 +1,4 @@
 push.bash
 bin/dot
+__pycache__/
+*.py[cod]

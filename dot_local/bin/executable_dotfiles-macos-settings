@@ -1,0 +1,11 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["pydantic>=2"]
+# ///
+"""Run the dotfiles macOS settings command."""
+
+import dotfiles_macos_settings
+
+if __name__ == "__main__":
+    raise SystemExit(dotfiles_macos_settings.main())

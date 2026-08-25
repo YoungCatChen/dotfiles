@@ -36,3 +36,11 @@ install.sh
 misc-tools
 .dotfiles-layer-archive
 **/*_test
+**/*_test.*
+**/__pycache__
+**/*.pyc
+
+{{ if not (and (eq .chezmoi.os "darwin") (eq $location "local")) }}
+.local/bin/dotfiles-macos-settings
+.local/bin/dotfiles_macos_settings.py
+{{ end }}

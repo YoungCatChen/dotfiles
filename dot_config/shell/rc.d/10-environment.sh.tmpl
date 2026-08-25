@@ -37,6 +37,10 @@ setup_login_environment() {
     LESSOPEN='|lesspipe.sh %s'
     export LESSOPEN
   fi
+
+  {{ if eq .chezmoi.os "linux" }}
+  export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+  {{ end }}
 }
 
 setup_login_environment

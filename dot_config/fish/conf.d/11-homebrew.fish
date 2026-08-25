@@ -1,3 +1,5 @@
+status is-login; or return
+
 if command -q brew
   set -l brew_prefix (brew --prefix)
   set -l gnubins (command find "$brew_prefix/opt" -type d -path '*/libexec/gnubin' -print -prune 2>/dev/null)

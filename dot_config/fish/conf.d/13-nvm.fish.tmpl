@@ -1,5 +1,7 @@
 # vim: set ft=fish:
 
+status is-login; or return
+
 {{ include ".chezmoitemplates/nvm_dir.sh" }}
 set -gx nvm_data $NVM_DIR/versions/node
 

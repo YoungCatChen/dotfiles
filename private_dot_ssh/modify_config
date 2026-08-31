@@ -1,0 +1,18 @@
+#!/usr/bin/awk -f
+# vim: set filetype=awk:
+
+BEGIN {
+  begin_line = "# --- START DOTFILES SSH INCLUDE ---"
+  end_line = "# --- END DOTFILES SSH INCLUDE ---"
+}
+
+$0 == begin_line { skip = 1 }
+!skip { print }
+$0 == end_line { skip = 0 }
+
+END {
+  print begin_line
+  print "Match all"
+  print "Include ~/.ssh/config.d/*.conf"
+  print end_line
+}

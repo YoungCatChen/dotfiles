@@ -1,0 +1,28 @@
+#!/usr/bin/awk -f
+# vim: set filetype=awk:
+
+BEGIN {
+  begin_line = "# --- START DOTFILES GIT INCLUDE ---"
+  end_line = "# --- END DOTFILES GIT INCLUDE ---"
+}
+
+$0 == begin_line { skip = 1 }
+
+# These two lines are temporary; they are used to skip old include lines that
+# are not put between the begin and end lines.
+$0 == "[include]" { next }
+/^  path = ~\/.config\/git\// { next }
+
+!skip { print }
+$0 == end_line { skip = 0 }
+
+END {
+  print begin_line
+  print "[include]"
+  print "  path = ~/.config/git/common.gitconfig"
+  print "[include]"
+  print "  path = ~/.config/git/identity.gitconfig"
+  print "[include]"
+  print "  path = ~/.config/git/local.gitconfig"
+  print end_line
+}

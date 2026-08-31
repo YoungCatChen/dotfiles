@@ -1,6 +1,0 @@
-[include]
-  path = ~/.config/git/common.gitconfig
-[include]
-  path = ~/.config/git/identity.gitconfig
-[include]
-  path = ~/.config/git/local.gitconfig

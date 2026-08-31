@@ -1,8 +1,5 @@
 {{- /* vim: set ft=sh: */ -}}
-{{- if and
-  (not (env "DOTFILES_SKIP_SIDE_EFFECTS"))
-  (lookPath "gh")
--}}
+{{- if and lookPath "gh" -}}
 #!/bin/sh
 set -eu
 

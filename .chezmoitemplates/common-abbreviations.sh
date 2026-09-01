@@ -21,3 +21,5 @@ abbr watchdiff 'watch -e -n1 -c --differences=cumulative'
 abbr langposix 'langset POSIX POSIX'
 abbr langzh 'langset zh_CN.UTF-8 zh_CN:zh'
 abbr langen 'langset en_US.UTF-8 en_US:en'
+
+abbr proxychainscleanenv 'HTTP_PROXY= HTTPS_PROXY= http_proxy= https_proxy= proxychains'

@@ -1,0 +1,23 @@
+#!/usr/bin/awk -f
+# vim: set filetype=awk:
+
+BEGIN {
+  begin_line = "# --- START DOTFILES BASHRC INCLUDE ---"
+  line1 = "# Interactive-shell entry point for Bash. Bash may also read this file for"
+  line2 = "# remote non-interactive commands; the dispatcher exits immediately there."
+  line3 = "[ -r \"$HOME/.config/shell/init.sh\" ] && . \"$HOME/.config/shell/init.sh\""
+  end_line = "# --- END DOTFILES BASHRC INCLUDE ---"
+
+  print begin_line
+  print line1
+  print line2
+  print line3
+  print end_line
+}
+
+$0 == line1 { next }
+$0 == line2 { next }
+$0 == line3 { next }
+$0 == begin_line { skip = 1 }
+!skip { print }
+$0 == end_line { skip = 0 }

@@ -1,4 +1,0 @@
-# Interactive-shell entry point for Bash. Bash may also read this file for
-# remote non-interactive commands; the dispatcher exits immediately there.
-
-[ -r "$HOME/.config/shell/init.sh" ] && . "$HOME/.config/shell/init.sh"

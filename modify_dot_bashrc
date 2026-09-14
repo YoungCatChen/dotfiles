@@ -9,9 +9,12 @@ BEGIN {
   end_line = "# --- END DOTFILES BASHRC INCLUDE ---"
 
   print begin_line
+  print
   print line1
   print line2
+  print
   print line3
+  print
   print end_line
 }
 

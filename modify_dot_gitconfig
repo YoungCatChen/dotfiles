@@ -4,7 +4,13 @@
 BEGIN {
   begin_line = "# --- START DOTFILES GIT INCLUDE ---"
   end_line = "# --- END DOTFILES GIT INCLUDE ---"
+}
 
+$0 == begin_line { skip = 1 }
+!skip { print }
+$0 == end_line { skip = 0 }
+
+END {
   print begin_line
   print "[include]"
   print "  path = ~/.config/git/common.gitconfig"
@@ -14,7 +20,3 @@ BEGIN {
   print "  path = ~/.config/git/local.gitconfig"
   print end_line
 }
-
-$0 == begin_line { skip = 1 }
-!skip { print }
-$0 == end_line { skip = 0 }

@@ -144,4 +144,20 @@ expected_log=$(printf 'git -C %s pull --ff-only\n' "$source_dir")
 expected_log=$expected_log$(printf '\nchezmoi --source %s apply' "$source_dir")
 test "$(cat "$log_file")" = "$expected_log"
 
+# Two layers in subdirectories of one repository share a single pull.
+reset_fixture
+rm -f "$test_home/.config/dotfiles-layers/sources.d/10-test.txt"
+mkdir "$source_dir/.git" "$source_dir/first" "$source_dir/second"
+printf '%s\n' "$source_dir/first" \
+  >"$test_home/.config/dotfiles-layers/sources.d/20-first.txt"
+printf '%s\n' "$source_dir/second" \
+  >"$test_home/.config/dotfiles-layers/sources.d/30-second.txt"
+run_update "$test_root/good.tar.gz"
+expected_log=$(printf 'git -C %s pull --ff-only\n' "$source_dir")
+expected_log=$expected_log$(printf '\nchezmoi --source %s apply' \
+  "$source_dir/first")
+expected_log=$expected_log$(printf '\nchezmoi --source %s apply' \
+  "$source_dir/second")
+test "$(cat "$log_file")" = "$expected_log"
+
 echo 'dotfiles-layers tests passed'

@@ -63,11 +63,12 @@ installed by Fisher. No Git submodules are required.
 
 ## Add another layer
 
-Each layer is an independent repository whose root is a chezmoi source state.
-To add one:
+Each layer is a chezmoi source state: the root of a repository or one of its
+subdirectories. One repository may hold several layers, for example when a
+machine can clone only one dotfiles repository. To add one:
 
-1. Create the repository and put chezmoi source files at its root (for
-   example, `dot_config/example/config`).
+1. Create the repository and put chezmoi source files at its root or in a
+   subdirectory (for example, `dot_config/example/config`).
 2. Add `dot_config/dotfiles-layers/sources.d/NN-name.txt.tmpl` containing
    `{{ .chezmoi.sourceDir }}`. The numeric prefix defines apply order.
 3. Make its installer apply prerequisite layers first, then run
@@ -75,7 +76,9 @@ To add one:
 4. To support updates without Git, add `.dotfiles-layer-archive` containing an
    HTTPS URL for a `tar.gz` archive with one top-level directory, and list the
    metadata file in `.chezmoiignore`. Install the source without its `.git`
-   directory to select archive updates.
+   directory to select archive updates. Archive updates replace the whole
+   source directory, so they are supported only for layers at a repository
+   root; `update` pulls a repository once for consecutive layers it holds.
 5. Avoid owning the same target file in multiple layers. Prefer fragments,
    application commands, or a `modify_` script when configuration must be
    shared.

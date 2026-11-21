@@ -3,7 +3,6 @@
 #!/bin/sh
 set -eu
 
-gh config set git_protocol ssh
 gh alias set --clobber co 'pr checkout'
 gh alias set --clobber mypr 'pr list --assignee @me --state open'
 gh alias set --clobber myprs mypr
